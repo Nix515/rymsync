@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="robots" content="noindex,nofollow">
+	<title>RhythmSync Security Console</title>
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+	<style>
+		:root{color-scheme:dark;--bg:#090a0d;--surface:#14161a;--surface2:#1d2026;--line:#ffffff16;--text:#f7f7f8;--muted:#a2a7b0;--accent:#d9ff57;--danger:#ff7897;--warn:#ffc857;font:14px "DM Sans",system-ui,sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text)}button,input,select{font:inherit}.layout{display:grid;grid-template-columns:250px 1fr;min-height:100vh}.sidebar{border-right:1px solid var(--line);background:#101216;padding:22px 16px}.brand{display:flex;align-items:center;gap:10px;margin-bottom:32px;font-size:19px;font-weight:800}.mark{display:grid;width:34px;height:34px;place-items:center;border-radius:11px;background:var(--accent);color:#16180c}.side-nav{display:grid;gap:6px}.side-nav button,.side-nav a{border:0;border-radius:10px;background:transparent;color:var(--muted);padding:11px;text-align:left;text-decoration:none;cursor:pointer}.side-nav button.active,.side-nav button:hover,.side-nav a:hover{background:var(--surface2);color:var(--text)}.main{min-width:0;padding:clamp(20px,4vw,48px)}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:25px}.eyebrow{color:var(--accent);font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase}.top h1{margin:7px 0;font-size:clamp(27px,4vw,44px)}.muted{color:var(--muted)}.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.btn,.field{border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);padding:10px 12px}.btn{cursor:pointer}.btn.primary{border:0;background:var(--accent);color:#15170b;font-weight:800}.btn.danger{color:var(--danger)}.dashboard{display:grid;gap:16px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);border-radius:15px;background:var(--surface);padding:17px}.card small{color:var(--muted)}.card strong{display:block;margin-top:8px;font-size:27px}.log-panel{overflow:hidden;padding:0}.log-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:15px 17px;border-bottom:1px solid var(--line)}.logs{max-height:calc(100vh - 260px);overflow:auto}.log{display:grid;grid-template-columns:170px 70px 1fr 100px;gap:12px;padding:12px 17px;border-bottom:1px solid var(--line);font-size:12px}.log:hover{background:var(--surface2)}.log time,.log .path{color:var(--muted)}.status-4,.status-5{color:var(--danger);font-weight:800}.status-2{color:var(--accent)}.event{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:3px 7px;color:var(--muted)}		.auth{max-width:430px;margin:12vh auto}.auth form{display:grid;gap:12px}.oauth-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--muted);font-size:12px}.oauth-divider:before,.oauth-divider:after{content:"";height:1px;flex:1;background:var(--line)}.hidden{display:none!important}.alert{border:1px solid #ff789766;border-radius:10px;background:#ff789711;color:#ffb1c2;padding:11px;font-size:13px}.notice{border:1px solid #ffc85766;background:#ffc85711;color:#ffe0a0;padding:13px;border-radius:10px;font-size:13px;line-height:1.5}@media(max-width:850px){.layout{grid-template-columns:1fr}.sidebar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;border-right:0;border-bottom:1px solid var(--line);padding:12px 16px}.brand{margin:0 auto 0 0}.side-nav{display:flex;overflow:auto}.side-nav a{display:none}.side-nav button{white-space:nowrap}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.log{grid-template-columns:1fr 60px;gap:5px}.log .path{grid-column:1/-1}.log .event{grid-column:1/-1;width:max-content}}@media(max-width:430px){.top{display:block}.toolbar{margin-top:15px}.stats{gap:8px}.card{padding:13px}.card strong{font-size:21px}}
+	</style>
+</head>
+<body>
+	<div id="authView" class="auth card">
+		<div class="eyebrow">Restricted access</div>
+		<h1>Security console</h1>
+		<p class="muted">Only administrator user IDs configured on the server may view security events.</p>
+		<form id="loginForm">
+			<input class="field" id="email" type="email" autocomplete="username" placeholder="Admin email" required>
+			<input class="field" id="password" type="password" autocomplete="current-password" placeholder="Password" required>
+			<button class="btn primary" type="submit">Sign in securely</button>
+		</form>
+		<div class="oauth-divider"><span>or</span></div>
+		<button class="btn" id="googleLogin" type="button">Continue with Google</button>
+		<p id="authMessage" class="alert hidden"></p>
+	</div>
+	<div id="appView" class="layout hidden">
+		<aside class="sidebar">
+			<div class="brand"><span class="mark">♫</span>RhythmSync</div>
+			<nav class="side-nav" aria-label="Security console">
+				<button class="active" data-section="overview">Overview</button>
+				<button data-section="events">Live events</button>
+				<a href="/terms.html">Terms & privacy</a>
+				<button id="logout">Sign out</button>
+			</nav>
+		</aside>
+		<main class="main">
+			<section id="overview">
+				<div class="top"><div><div class="eyebrow">Admin only · live protection</div><h1>Security overview</h1><p class="muted">Operational request and security events. Tokens, passwords, and raw IP addresses are never displayed.</p></div><div class="toolbar"><button class="btn" id="refresh">Refresh</button><button class="btn danger" id="clear">Clear view</button></div></div>
+				<div class="notice">This console is not a substitute for a managed WAF, intrusion detection service, backups, or incident response. Review high-severity events and configure an external alerting destination before production.</div>
+				<div class="stats" style="margin-top:16px"><div class="card"><small>Total shown</small><strong id="total">0</strong></div><div class="card"><small>Errors</small><strong id="errors">0</strong></div><div class="card"><small>Rate limited</small><strong id="limited">0</strong></div><div class="card"><small>Last event</small><strong id="last">—</strong></div></div>
+				<div class="card log-panel" style="margin-top:16px"><div class="log-head"><strong>Live security feed</strong><span id="connection" class="muted">Connecting…</span></div><div id="logs" class="logs" aria-live="polite"></div></div>
+			</section>
+		</main>
+	</div>
+	<script>
+		const SUPABASE_URL='https://fgntxbricyblykifmmbmfs.supabase.co',SUPABASE_ANON_KEY='sb_publishable_tLWgtwgQGASHQqe7VMsw0g_DFnoGIEk',db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+		const $=selector=>document.querySelector(selector);let token='',events=[];
+		const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+		function showMessage(message){$('#authMessage').textContent=message;$('#authMessage').classList.remove('hidden')}
+		function render(){const shown=events.slice().reverse();$('#total').textContent=shown.length;$('#errors').textContent=shown.filter(e=>Number(e.status)>=400).length;$('#limited').textContent=shown.filter(e=>Number(e.status)===429).length;$('#last').textContent=shown[0]?new Date(shown[0].timestamp).toLocaleTimeString():'—';$('#logs').innerHTML=shown.map(event=>`<div class="log"><time>${escapeHTML(new Date(event.timestamp).toLocaleString())}</time><span class="status-${String(event.status||'').charAt(0)}">${escapeHTML(event.status||'—')}</span><span class="path">${escapeHTML(event.method)} ${escapeHTML(event.path)} · ${escapeHTML(event.ip_hash||'anonymous')}</span><span class="event">${escapeHTML(event.event||'request')}</span></div>`).join('')||'<p class="muted" style="padding:18px">No events recorded yet.</p>'}
+		function add(event){if(!events.some(item=>item.id===event.id)){events.push(event);events=events.slice(-500);render()}}
+		async function api(path,options={}){const response=await fetch(path,{...options,headers:{...(options.headers||{}),Authorization:`Bearer ${token}`}});if(!response.ok)throw Error((await response.json().catch(()=>({}))).error?.message||`Request failed (${response.status})`);return response.json()}
+		async function openConsole(){try{const data=await api('/api/admin/logs?limit=500');events=data.data||[];$('#authView').classList.add('hidden');$('#appView').classList.remove('hidden');render();const controller=new AbortController();window.logStream=controller;const response=await fetch('/api/admin/logs/stream',{headers:{Authorization:`Bearer ${token}`},signal:controller.signal});if(!response.ok)throw Error((await response.json().catch(()=>({}))).error?.message||`Live stream failed (${response.status})`);$('#connection').textContent='Live';const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='';(async()=>{try{while(true){const {done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const blocks=buffer.split('\\n\\n');buffer=blocks.pop()||'';for(const block of blocks){const line=block.split('\\n').find(item=>item.startsWith('data: '));if(line)add(JSON.parse(line.slice(6)))}}}catch(error){if(error.name!=='AbortError')$('#connection').textContent='Reconnecting…'}})()}catch(error){showMessage(error.message);await db.auth.signOut()}}
+		$('#loginForm').addEventListener('submit',async event=>{event.preventDefault();try{const {data,error}=await db.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});if(error)throw error;token=data.session.access_token;await openConsole()}catch(error){showMessage(error.message||'Sign-in failed.')}});$('#googleLogin').addEventListener('click',async()=>{try{const {error}=await db.auth.signInWithOAuth({provider:'google',options:{redirectTo:`${location.origin}${location.pathname}`}});if(error)throw error}catch(error){showMessage(error.message||'Google sign-in could not start.')}});$('#refresh').addEventListener('click',async()=>{try{events=(await api('/api/admin/logs?limit=500')).data||[];render()}catch(error){alert(error.message)}});$('#clear').addEventListener('click',()=>{events=[];render()});$('#logout').addEventListener('click',async()=>{window.logStream?.abort();await db.auth.signOut();location.reload()});document.querySelectorAll('[data-section]').forEach(button=>button.addEventListener('click',()=>document.querySelector('main').scrollIntoView({behavior:'smooth'})));
+		(async()=>{const {data}=await db.auth.getSession();if(data.session){token=data.session.access_token;await openConsole()}})();
+	</script>
+</body>
+</html>
